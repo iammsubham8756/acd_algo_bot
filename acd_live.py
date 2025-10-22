@@ -34,9 +34,6 @@ def send_telegram(message):
                 print(f"⚠ Error: {e}")
 time.sleep(300)
 
-print("🚀 Sending test message to Telegram...")
-send_telegram("🚀 Test message from ACD bot!")
-
 import time
 import requests
 from acd_strategy import get_acd_signal, client, SYMBOL, INTERVAL
@@ -54,9 +51,9 @@ def send_telegram(message):
 
         if __name__ == "__main__":
              print("✅ACD Live Bot started. Monitoring market...")
+             print("✅ Bot started successfully and now running 24/7...")
 
-        last_singal = None
-
+             last_signal = None
         while True:
             try:
                 signal = get_acd_signal(client, SYMBOL, INTERVAL)
@@ -69,9 +66,24 @@ def send_telegram(message):
                     last_singal = signal
                 else:
                     print("No new signal yet.")
+                    while True:
+                        try:
+                            signal = get_acd_signal(client, SYMBOL, INTERVAL)
+                            if signal == "BUY" and signal != last_signal:
+                                send_telegram(f"✅ BUY Signal: Price crossed A-level for {SYMBOL}")
+                                print(f"✅ BUY Signal sent for {SYMBOL}")
+                                last_signal = signal
+                            elif signal == "SELL" and signal != last_signal:
+                                send_telegram(f"🔻 SELL Signal: Price fell below C-level for {SYMBOL}")
+                                print(f"🔻 SELL Signal sent for {SYMBOL}")
+                                last_signal = signal
+
+                            else:
+                                print(f"🔁 No new signal yet for {SYMBOL}")
+                                
+                                time.sleep(300)
+
             except Exception as e:
                 print(f"⚠ Error: {e}")
-time.sleep(300)
-
-print("🚀 Sending test message to Telegram...")
-send_telegram("🚀 Test message from ACD bot!")
+                send_telegram(f"⚠ Error from bot: {e}")
+                time.sleep(60)
